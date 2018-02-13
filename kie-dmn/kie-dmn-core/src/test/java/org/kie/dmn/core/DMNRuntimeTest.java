@@ -1762,5 +1762,22 @@ public class DMNRuntimeTest {
         assertEquals(2, resultObject.size());
     }
 
+    @Test
+    public void testTckDrgScopes() {
+        KieServices ks = KieServices.Factory.get();
+        final KieContainer kieContainer = KieHelper.getKieContainer(ks.newReleaseId("org.kie", "dmn-test-" + UUID.randomUUID(), "1.0"),
+                ks.getResources().newClassPathResource("0034-drg-scopes.dmn", this.getClass()));
+        DMNRuntime runtime = kieContainer.newKieSession().getKieRuntime(DMNRuntime.class);
+
+        DMNModel dmnModel = runtime.getModel("http://www.actico.com/spec/DMN/0.1.0/0034-drg-scopes", "0034-drg-scopes");
+        assertThat(dmnModel, notNullValue());
+        assertThat(DMNRuntimeUtil.formatMessages(dmnModel.getMessages()), dmnModel.hasErrors(), is(false));
+        DMNContext context = DMNFactory.newContext();
+        context.set("A", "a");
+        context.set("B", "b");
+        context.set("C", "c");
+        DMNResult dmnResult = runtime.evaluateAll(dmnModel, context);
+        assertThat(DMNRuntimeUtil.formatMessages(dmnResult.getMessages()), dmnResult.hasErrors(), is(false));
+    }
 }
 
